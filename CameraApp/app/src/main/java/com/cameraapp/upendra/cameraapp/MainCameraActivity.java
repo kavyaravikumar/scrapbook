@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import android.net.Uri;
@@ -38,13 +39,16 @@ import com.example.gridviewimagesdemo.R;
 public class MainCameraActivity extends Activity implements OnClickListener {
 
     Button captureBtn = null;
+    Button syncBtn = null;
     final int CAMERA_CAPTURE = 1;
     private Uri picUri;
     private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private GridView grid;
     private  List<String> listOfImagesPath;
+    private HashMap<String, Integer> urlsSync;
 
     public static final String GridViewDemo_ImagePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/GridViewDemo/";
+    public static String EXTRA_MESSAGE = "com.app.upendra.cameraapp.MESSAGE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +57,8 @@ public class MainCameraActivity extends Activity implements OnClickListener {
 
         captureBtn = (Button)findViewById(R.id.capture_btn1);
         captureBtn.setOnClickListener(this);
+        syncBtn = (Button)findViewById(R.id.sync_button);
+        syncBtn.setOnClickListener(this);
         grid = ( GridView) findViewById(R.id.gridviewimg);
 
         listOfImagesPath = null;
@@ -87,12 +93,52 @@ public class MainCameraActivity extends Activity implements OnClickListener {
             }
         }
 
+        if (arg0.getId() == R.id.sync_button){
+            /*
+            try {
+                String message = "Hello";
+                //listOfImagesPath = null;
+                //listOfImagesPath = RetriveCapturedImagePath();
+                Intent intent = new Intent(this, MongoCRUDActivity.class );
+
+                if(listOfImagesPath!=null){
+                    intent.putStringArrayListExtra(EXTRA_MESSAGE,  (ArrayList<String>)listOfImagesPath);
+                }
+
+                startActivity(intent);
+            } catch (ActivityNotFoundException anfe) {
+                String errorMessage = "Whoops - your device doesn't support capturing images!";
+                Toast toast = Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT);
+                toast.show();
+            }
+            */
+
+            MyContact contact = new MyContact();
+            contact.first_name = "Upendra" ;//editText_fname.getText().toString();
+            contact.last_name = "Sabnis" ;//editText_last_name.getText().toString();
+            contact.email = "abc@gmail.com";//editText_email.getText().toString();
+            contact.phone = "987654321"; //editText_phone.getText().toString();
+            contact.listOfImagesPath = (ArrayList<String>)listOfImagesPath;
+
+            SaveAsyncTask tsk = new SaveAsyncTask();
+            tsk.execute(contact);
+        }
+
+    }
+
+    /* Checks if external storage is available for read and write */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
 //user is returning from capturing an image using the camera
-            if(requestCode == CAMERA_CAPTURE){
+            if(requestCode == CAMERA_CAPTURE && isExternalStorageWritable()){
                 Bundle extras = data.getExtras();
                 Bitmap thePic = extras.getParcelable("data");
                 String imgcurTime = dateFormat.format(new Date());
@@ -103,6 +149,7 @@ public class MainCameraActivity extends Activity implements OnClickListener {
                     FileOutputStream out = new FileOutputStream(_path);
                     thePic.compress(Bitmap.CompressFormat.JPEG, 90, out);
                     out.close();
+
                 } catch (FileNotFoundException e) {
                     e.getMessage();
                 } catch (IOException e) {
@@ -119,18 +166,21 @@ public class MainCameraActivity extends Activity implements OnClickListener {
 
     private List<String> RetriveCapturedImagePath() {
         List<String> tFileList = new ArrayList<String>();
-        File f = new File(GridViewDemo_ImagePath);
-        if (f.exists()) {
-            File[] files=f.listFiles();
-            Arrays.sort(files);
+        if (isExternalStorageWritable()) {
+            File f = new File(GridViewDemo_ImagePath);
+            if (f.exists()) {
+                File[] files=f.listFiles();
+                Arrays.sort(files);
 
-            for(int i=0; i<files.length; i++){
-                File file = files[i];
-                if(file.isDirectory())
-                    continue;
-                tFileList.add(file.getPath());
+                for(int i=0; i<files.length; i++){
+                    File file = files[i];
+                    if(file.isDirectory())
+                        continue;
+                    tFileList.add(file.getPath());
+                }
             }
         }
+
         return tFileList;
     }
 
@@ -138,6 +188,7 @@ public class MainCameraActivity extends Activity implements OnClickListener {
     {
         private Context context;
         private List<String> imgPic;
+        private int synced;
         public ImageListAdapter(Context c, List<String> thePic)
         {
             context = c;

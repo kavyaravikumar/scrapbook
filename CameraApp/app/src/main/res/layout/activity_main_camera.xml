@@ -25,22 +25,34 @@
             android:paddingBottom="50dp"
             android:paddingTop="10dp"
             />
+
+
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/RelativeLayout01"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:layout_alignBottom="@+id/RelativeGridLayout"
         >
 
         <Button
             android:id="@+id/capture_btn1"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:text="Camera" />
+            android:layout_alignParentLeft="true"
+            android:text="@string/button_camera" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_sync"
+            android:id="@+id/sync_button"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerHorizontal="true"/>
     </RelativeLayout>
 
 </RelativeLayout>

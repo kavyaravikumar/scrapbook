@@ -1,6 +1,9 @@
 <resources>
-    <string name="app_name">CameraApp</string>
+    <string name="app_name">Scrapbook</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="button_camera">Camera</string>
+    <string name="button_sync">Sync</string>
+    <string name="title_activity_mongo_crud">MongoCRUDActivity</string>
 </resources>
